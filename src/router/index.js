@@ -1,18 +1,13 @@
-// Importa Vue y Vue Router para la configuración de navegación
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+// Importa createRouter y createWebHistory de vue-router para Vue 3
+import { createRouter, createWebHistory } from 'vue-router'
 
-// Importa los componentes que serán utilizados en las rutas
-import Login from '../views/Login.vue'
-import Home from '../views/Home.vue'
-import Dashboard from '../views/Dashboard.vue'
-import UserManagement from '../views/UserManagement.vue'
-// Otros componentes importados...
+// Importa los componentes que realmente existen
+import Login from '../components/LoginCRUD.vue'
+import UserCRUD from '../components/UserCRUD.vue'
+import Menu from '../components/Menu.vue'
+import EnvioMensajes from '../components/EnvioMensajes.vue'
 
-// Registra el plugin de Router en Vue
-Vue.use(VueRouter)
-
-// Define las rutas de la aplicación
+// Define las rutas de la aplicación con los componentes correctos
 const routes = [
   {
     path: '/',
@@ -20,55 +15,48 @@ const routes = [
     component: Login
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: Home,
-    meta: { requiresAuth: true } // Esta ruta requiere autenticación
+    path: '/user',
+    name: 'UserCRUD',
+    component: UserCRUD,
+    meta: { requiresAuth: true }
   },
   {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: { requiresAuth: true } // Esta ruta requiere autenticación
+    path: '/menu',
+    name: 'Menu',
+    component: Menu,
+    meta: { requiresAuth: true }
   },
   {
-    path: '/usuarios',
-    name: 'UserManagement',
-    component: UserManagement,
-    meta: { requiresAuth: true } // Esta ruta requiere autenticación
+    path: '/mensajes',
+    name: 'EnvioMensajes',
+    component: EnvioMensajes,
+    meta: { requiresAuth: true }
   }
-  // Otras rutas definidas...
 ]
 
-// Crea la instancia del enrutador con las rutas definidas
-const router = new VueRouter({
-  mode: 'history', // Usa el modo historia de HTML5 para URLs limpias
-  base: process.env.BASE_URL,
+// Crea la instancia del enrutador con las rutas definidas usando la API de Vue 3
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
 
-// Añade logs para debugging
+// Guarda de navegación para autenticación
 router.beforeEach((to, from, next) => {
   console.log('Navegando a:', to.path)
   console.log('Token existente:', localStorage.getItem('token'))
   
   if (to.meta.requiresAuth) {
     const token = localStorage.getItem('token')
-    // Verifica si el usuario tiene un token de autenticación válido
     if (!token) {
-      // Si no existe un token, registra el evento y redirige al usuario a la página de inicio (login)
       console.log('No hay token, redirigiendo a login')
       next('/')
     } else {
-      // Si el token existe, permite continuar con la navegación a la ruta solicitada
       console.log('Token encontrado, permitiendo navegación')
       next()
     }
   } else {
-    // Si la ruta no requiere autenticación, permite la navegación sin verificar el token
     next()
   }
 })
 
-// Exporta el enrutador configurado para que pueda ser utilizado en la aplicación
 export default router
